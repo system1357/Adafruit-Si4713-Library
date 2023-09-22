@@ -167,9 +167,10 @@ public:
   void setProperty(uint16_t p, uint16_t v);
 
   // RDS stuff
-  void beginRDS(uint16_t programID = 0xADAF);
+  void beginRDS(uint16_t programID = 0xADAF, uint16_t fifoSize = 0x0004);
   void setRDSstation(const char *s);
   void setRDSbuffer(const char *s);
+  void setRDSFIFObuffer(uint16_t rdsbreg, uint16_t rdscreg, uint16_t rdsdreg);
 
   uint16_t currFreq;  ///< current frequency
   uint8_t currdBuV,   ///< current BuV

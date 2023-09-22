@@ -213,12 +213,13 @@ void Adafruit_Si4713::readTuneMeasure(uint16_t freq) {
  *            SI4713_PROP_TX_RDS_PS_REPEAT_COUNT: 3,
  *            SI4713_PROP_TX_RDS_MESSAGE_COUNT: 1,
  *            SI4713_PROP_TX_RDS_PS_AF: 0xE0E0,
- *            SI4713_PROP_TX_RDS_FIFO_SIZE: 0,
  *            SI4713_PROP_TX_COMPONENT_ENABLE: 7
  *    @param  programID
  *            sets SI4713_PROP_TX_RDS_PI to parameter value
+ *    @param  fifoSize
+ *            sets SI4713_PROP_TX_RDS_FIFO_SIZE to parameter value
  */
-void Adafruit_Si4713::beginRDS(uint16_t programID) {
+void Adafruit_Si4713::beginRDS(uint16_t programID, uint16_t fifoSize) {
   setProperty(SI4713_PROP_TX_AUDIO_DEVIATION,
               6625);                              // 66.25KHz (default is 68.25)
   setProperty(SI4713_PROP_TX_RDS_DEVIATION, 200); // 2KHz (default)
@@ -229,7 +230,7 @@ void Adafruit_Si4713::beginRDS(uint16_t programID) {
   setProperty(SI4713_PROP_TX_RDS_PS_REPEAT_COUNT, 3); // 3 repeats (default)
   setProperty(SI4713_PROP_TX_RDS_MESSAGE_COUNT, 1);   // 1 message (default)
   setProperty(SI4713_PROP_TX_RDS_PS_AF, 0xE0E0);      // no AF (default)
-  setProperty(SI4713_PROP_TX_RDS_FIFO_SIZE, 0);       // no FIFO (default)
+  setProperty(SI4713_PROP_TX_RDS_FIFO_SIZE, fifoSize);       // FIFO buffer size (default = 4)
   setProperty(SI4713_PROP_TX_COMPONENT_ENABLE,
               0x0007); // enable RDS, stereo, tone
 }
@@ -295,6 +296,28 @@ void Adafruit_Si4713::setRDSbuffer(const char *s) {
     _i2ccommand[3] = i;
     sendCommand(8);
   }
+}
+
+/*!
+ *    @brief  Load data into RDS FIFO buffer.
+ *            Beware that there's no check on the validity of the data sent.
+ *    @param  rdsbreg
+ *            Message Group
+ *    @param  rdscreg
+ *            string to load
+ *    @param  rdsdreg
+ *            string to load
+ */
+void Adafruit_Si4713::setRDSFIFObuffer(uint16_t rdsbreg, uint16_t rdscreg, uint16_t rdsdreg) {
+    _i2ccommand[0] = SI4710_CMD_TX_RDS_BUFF;
+    _i2ccommand[1] = 0x84;
+    _i2ccommand[2] = (uint8_t)(rdsbreg >> 8);
+    _i2ccommand[3] = (uint8_t)(rdsbreg);
+    _i2ccommand[4] = (uint8_t)(rdscreg >> 8);
+    _i2ccommand[5] = (uint8_t)(rdscreg);
+    _i2ccommand[6] = (uint8_t)(rdsdreg >> 8);
+    _i2ccommand[7] = (uint8_t)(rdsdreg);
+    sendCommand(8);
 }
 
 /*!
